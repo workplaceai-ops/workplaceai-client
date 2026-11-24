@@ -1,37 +1,58 @@
-# Incredible India
+# WorkMind Client
 
-A small tourist-places website built with React, TypeScript and Vite.
+A lightweight WorkMind AI chat frontend. No login, registration, or admin screens.
 
-## Run it
+## Requirements
+- Node.js 18 or newer
+- npm
+- WorkMind FastAPI backend running
+
+## Local development
+
+From this directory:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173
+Open http://localhost:5173.
 
-## Features
+The Vite development server proxies `/api/*` to `http://127.0.0.1:8001` by default.
+If your local backend uses another address, set `VITE_DEV_API_TARGET` in your environment.
 
-- Browse 9 famous places across India
-- Search by name, state or description
-- Filter by category (Heritage, Nature, Beach, Spiritual, Adventure)
-- Place detail pages with best time to visit and highlights
-- Save favourites (stored in the browser's localStorage)
+## Production build
 
-## Structure
-
-```
-src/
-  app/            App, router, providers
-  components/     ui, layout, shared building blocks
-  features/       home, places (api, components, data, hooks, pages)
-  lib/            api client, endpoints, utilities
-  types/          shared TypeScript types
-  styles/         global.css
+```bash
+npm install
+npm run build
 ```
 
-## Connecting a real backend later
+The production files are written to `dist/`.
 
-`src/features/places/api/placesApi.ts` currently reads local data.
-Swap its body for `apiFetch(ENDPOINTS.places)` and set `VITE_API_BASE_URL` in `.env`.
+In Stage/Live, the frontend calls `/api/v1/chat` on the same host. This relies on the existing
+web-server `/api/` reverse proxy to the FastAPI backend. No backend files or configuration
+are included in this package.
+
+## API contract used by this client
+
+Request:
+
+```json
+{
+  "messages": [
+    { "role": "user", "content": "Hello" }
+  ]
+}
+```
+
+Expected successful response:
+
+```json
+{
+  "response": "Hello! How can I help?",
+  "model": "optional-model-name"
+}
+```
+
+Errors may return a JSON `detail` or `message` field.
