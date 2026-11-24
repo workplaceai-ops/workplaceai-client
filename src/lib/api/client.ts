@@ -1,12 +1,32 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
+export type Message = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+type ChatResult = {
+  response: string;
+  model: string;
+};
+
+export async function sendChat(messages: Message[]): Promise<ChatResult> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/chat`, {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
-    ...init,
+    body: JSON.stringify({ messages }),
   });
-  if (!res.ok) {
-    throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+
+  if (!response.ok) {
+    let message = `Request failed (${response.status})`;
+    try {
+      const body = await response.json();
+      message = body.detail || message;
+    } catch {
+      // Keep the HTTP status message.
+    }
+    throw new Error(message);
   }
-  return res.json() as Promise<T>;
+
+  return response.json() as Promise<ChatResult>;
 }
